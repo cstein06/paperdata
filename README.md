@@ -1,12 +1,12 @@
 # PaperData
 
-PaperData is a simple python interface to record and access data contained in scientific papers, including data points of each figure, tables, parameters or raw data. 
+PaperData is a simple python interface to record and access data contained in scientific papers, including figure data points, tables, parameters or raw data. 
 
-Sharing paper contents allows for quantitative follow-up work, including computer modelling, meta-studies and reproducibility. 
+Sharing paper contents allows for quantitative follow-up work, including comparisons, computer modelling, meta-studies and reproducibility. 
 
 ## Download Demo
 
-The library is easy to access, structured as python dictionaries and can be used for any scientific domain. 
+The library is easy to access, with the content structured in python dictionaries and can be used for any scientific domain. 
 
 ```python
 import matplotlit.pyplot as plt
