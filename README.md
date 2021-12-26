@@ -6,15 +6,23 @@ Sharing paper contents allows for quantitative follow-up work, including compari
 
 [Usage demo notebook](https://colab.research.google.com/drive/1ekgu4QaY-OXwAiqG27GqWnB7V1N3QeQh?usp=sharing)
 
+### Quick start
+
+Simply download the `paperdata.py` file or clone the repo:
+```bash
+git clone https://github.com/cstein06/paperdata.git
+cd paperdata
+```
+
 ## Download Demo
 
 The library is easy to access, with the content structured in python dictionaries and can be used for any scientific domain. 
 
 ```python
 import matplotlit.pyplot as plt
-import PaperData
+import paperdata
 
-paper = PaperData.get_paper(DOI='342.2932')
+paper = paperdata.get_paper(DOI='342.2932')
 
 print(paper.items)
 
