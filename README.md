@@ -10,7 +10,7 @@ Sharing paper contents allows for quantitative follow-up work, including compari
 
 Simply download the `paperdata.py` file or clone the repo:
 ```bash
-git clone https://github.com/cstein06/paperdata.git
+git clone https://github.com/cstein06/paperdata
 cd paperdata
 ```
 
