@@ -4,6 +4,8 @@ PaperData is a simple python interface to record and access data contained in sc
 
 Sharing paper contents allows for quantitative follow-up work, including comparisons, computer modelling, meta-studies and reproducibility. 
 
+[Usage demo notebook](https://colab.research.google.com/drive/1ekgu4QaY-OXwAiqG27GqWnB7V1N3QeQh?usp=sharing)
+
 ## Download Demo
 
 The library is easy to access, with the content structured in python dictionaries and can be used for any scientific domain. 
