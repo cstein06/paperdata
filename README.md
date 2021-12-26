@@ -16,7 +16,7 @@ cd paperdata
 
 ## Download Demo
 
-The library is easy to access, with the content structured in python dictionaries and can be used for any scientific domain. 
+The library is easy to access, with the content structured in python dictionaries and can be used for any scientific domain.  
 
 ```python
 import matplotlit.pyplot as plt
@@ -45,9 +45,9 @@ You can organize your items freely, making sure the content is self-explanatory 
 
 ```python
 import matplotlit.pyplot as plt
-import PaperData
+import paperdata
 
-paper = PaperData.submit_data(DOI='342.2932')
+paper = paperdata.submit_data(DOI='342.2932')
 
 paper.items["Fig. 1"] = {}
 paper.items["Fig. 1"]["X"] = [0, 100, 200, 300, 400]
