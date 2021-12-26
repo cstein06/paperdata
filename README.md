@@ -1,6 +1,6 @@
 # PaperData
 
-PaperData is a simple python interface to record and access data contained in scientific papers, including figure data points, tables, parameters or raw data. 
+PaperData is a simple python interface to record and access data contained in scientific papers, including figure data points, result tables, method parameters or raw data. 
 
 Sharing paper contents allows for quantitative follow-up work, including comparisons, computer modelling, meta-studies and reproducibility. 
 
@@ -14,10 +14,6 @@ import PaperData
 
 paper = PaperData.get_paper(DOI='342.2932')
 
-plt.plot(paper.items["fig1"]["X"], paper.items["fig1"]["Y"])
-
-plt.bar(paper.items["fig2"]["plot_data"][0], paper.items["fig2"]["plot_data"][1])
-
 print(paper.items)
 
 {'fig1': {
@@ -27,6 +23,10 @@ print(paper.items)
 'fig2': {
   'plot_data': [[0, 200, 400], [0.4, 0.5, 0.9]],
   'raw_data': [3x100 Array]}}
+
+plt.plot(paper.items["fig1"]["X"], paper.items["fig1"]["Y"])
+
+plt.bar(paper.items["fig2"]["plot_data"][0], paper.items["fig2"]["plot_data"][1])
 ```
 
 ## Upload Demo
