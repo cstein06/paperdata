@@ -1,12 +1,15 @@
-import sqlite3, json, numpy, pickle, bson
+import sqlite3, json, numpy, pickle, bson, base64
 
+import matplotlib.pyplot as plt
+import matplotlib.figure
 import numpy as np
-import types, inspect, re
+
+import types, inspect, re, codecs
 
 import requests
   
-# server = 'http://127.0.0.1:8080/'
-server = 'https://lateral-attic-335719.nw.r.appspot.com/'
+server = 'http://127.0.0.1:8080/'
+# server = 'https://lateral-attic-335719.nw.r.appspot.com/'
 
 class CustomEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -17,15 +20,55 @@ class CustomEncoder(json.JSONEncoder):
         elif isinstance(obj, numpy.ndarray):
             return {"_TYPE_NDARRAY_LIST": obj.tolist()}
         elif isinstance(obj, types.FunctionType):
-            return inspect.getsource(obj)
+            return {"_TYPE_PYTHON_FUNCTION": inspect.getsource(obj)}
+        elif isinstance(obj, Function):
+            return {"_TYPE_PYTHON_FUNCTION": obj.source}
+        elif isinstance(obj, matplotlib.figure.Figure):
+            fig_pic = pickle.dumps(obj)
+            encoded = base64.b64encode(fig_pic).decode("ascii")
+            return {"_TYPE_MATPLOTLIB_FIG": encoded}
+        elif isinstance(obj, bytes):
+            return {"_TYPE_PICKLE_BYTES": base64.b64encode(obj).decode("ascii")} 
         else:
             return super(CustomEncoder, self).default(obj)
 
-          
+class Function():
+  def __init__(self, source):
+    self.source = source
+    import re
+    if re.search("def", self.source):
+      self.name = re.search("def *([^ (]*)", self.source).group(1)
+    elif re.search("lambda", self.source):
+      self.name = re.search(" *([^ (]*)", self.source).group(1)
+    else:
+      print("Warning: Could not parse function name.")
+      self.name = ""
+    
+  def run(self, *args):
+    exec(self.source, globals())
+    # print(type(args))
+    return eval(self.name + f"(*args)")
+  
+  def __repr__(self):
+    return f"PaperData Function Object.\nCall `.run(*args)` to run the function.\nSource:\n{self.source}"
+
 def custom_decoder(dct):
   if '_TYPE_NDARRAY_LIST' in dct:
     return np.array(dct['_TYPE_NDARRAY_LIST'])
-  return dct    
+  elif '_TYPE_PYTHON_FUNCTION' in dct:
+    source = dct['_TYPE_PYTHON_FUNCTION']
+    func = Function(source)
+    return func 
+  elif '_TYPE_MATPLOTLIB_FIG' in dct:
+    pickled = dct['_TYPE_MATPLOTLIB_FIG']
+    decoded = base64.b64decode(pickled.encode("ascii"))
+    fig = pickle.loads(decoded)
+    return fig 
+  elif '_TYPE_PICKLE_BYTES' in dct:
+    pickled = dct['_TYPE_PICKLE_BYTES']
+    decoded = base64.b64decode(pickled.encode("ascii"))
+    return decoded 
+  return dct
 
 class Paper:
   
