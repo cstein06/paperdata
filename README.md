@@ -29,10 +29,10 @@ print(paper.items)
 {'fig1': {
   'X': [0, 100, 200, 300, 400],
   'Y': [0.3, 0.5, 1.5, 3.5, 4.0],
-  'conditions': {‘t_0(s)’ = 100, ‘t_final(s)’ = 1000}},
+  'conditions': {'t_0(s)' = 100, 't_final(s)' = 1000}},
 'fig2': {
   'plot_data': [[0, 200, 400], [0.4, 0.5, 0.9]],
-  'raw_data': [3x100 Array]}}
+  'raw_data_pickled': b'\x80\x04\x95...'}}
 
 plt.plot(paper.items["fig1"]["X"], paper.items["fig1"]["Y"])
 
@@ -52,7 +52,8 @@ paper = paperdata.submit_data(DOI='342.2932')
 paper.items["Fig. 1"] = {}
 paper.items["Fig. 1"]["X"] = [0, 100, 200, 300, 400]
 paper.items["Fig. 1"]["Y"] = [0.3, 0.5, 1.5, 3.5, 4.0]
-paper.items["Fig. 1"]["plotting"] = lambda X,Y: plt.plot(X,Y)
+fig1_plot = lambda X,Y: plt.plot(X,Y,'-o')
+paper.items["Fig. 1"]["plot_function"] = fig1_plot
 
 paper.submit()
 ```
