@@ -8,8 +8,8 @@ import types, inspect, re, codecs
 
 import requests
   
-server = 'http://127.0.0.1:8080/'
-# server = 'https://lateral-attic-335719.nw.r.appspot.com/'
+# server = 'http://127.0.0.1:8080/'
+server = 'https://lateral-attic-335719.nw.r.appspot.com/'
 
 class CustomEncoder(json.JSONEncoder):
     def default(self, obj):
