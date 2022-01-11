@@ -19,7 +19,7 @@ cd paperdata
 The library is easy to access, with the content indexed by DOI and structured in python dictionaries.
 
 ```python
-import matplotlit.pyplot as plt
+import matplotlib.pyplot as plt
 import paperdata
 
 paper = paperdata.get_paper(DOI='342.2932')
