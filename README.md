@@ -1,6 +1,6 @@
 # PaperData
 
-PaperData is a simple python interface to record and access data contained in scientific papers, including figure data points, result tables, method parameters or raw data. 
+PaperData is a database with a simple python interface to record and access data contained in scientific papers, including figure data points, result tables, method parameters or raw data. 
 
 Sharing paper contents allows for quantitative follow-up work, including comparisons between studies, computer modelling, meta-studies and reproducibility, for any scientific domain.  
 
