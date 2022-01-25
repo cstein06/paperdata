@@ -18,25 +18,25 @@ cd paperdata
 
 The library is easy to access, with the content indexed by DOI and structured in python dictionaries.
 
-```python
-import matplotlib.pyplot as plt
-import paperdata
+```pycon
+>>> import matplotlib.pyplot as plt
+>>> import paperdata
 
-paper = paperdata.get_paper(DOI='10.1038/s41586-021-03514-2')
+>>> paper = paperdata.get_paper(DOI='10.1038/s41586-021-03514-2')
 
 Paper: 10.1038/s41586-021-03514-2 Fast odour dynamics are encoded in the olfactory system and guide behaviour. 
 
 Paper data record found! Find the data in `.items` and `.metadata`.
-Update `.items` dictionary with new data and `.submit()`.
 
-print(paper.items)
+>>> print(paper.items)
 
 {'Ext. Fig. 1-a': {'Vr': array([[ 0., -0.22517071,  0.11778803, ..., -1.59946409, -0.34829094,  1.0544314 ]]),
                    'Vrm': array([0.0262406 , 0.02080717, 0.01293134, ..., 0.03627794, 0.04352064, 0.03727998]),
                    'times': array([-0.1  , -0.099, -0.098, ...,  1.897,  1.898,  1.899])},
                    'caption': 'Membrane voltage relative to baseline of a single model OSN in response to a 10-ms odour pulse. Black traces are individual trials; red trace is average over 20 trials. OSN spike threshold has been set high enough to prevent spiking to illustrate the subthreshold voltage time course.'}
-                   
-plt.plot(fig["times"], fig["Vr"], c="k");
+            
+>>> fig = paper.items['Ext. Fig. 1-a']
+>>> plt.plot(fig["times"], fig["Vr"], c="k");
 ```
 
 ## Upload Demo
