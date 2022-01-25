@@ -22,21 +22,21 @@ The library is easy to access, with the content indexed by DOI and structured in
 import matplotlib.pyplot as plt
 import paperdata
 
-paper = paperdata.get_paper(DOI='342.2932')
+paper = paperdata.get_paper(DOI='10.1038/s41586-021-03514-2')
+
+Paper: 10.1038/s41586-021-03514-2 Fast odour dynamics are encoded in the olfactory system and guide behaviour. 
+
+Paper data record found! Find the data in `.items` and `.metadata`.
+Update `.items` dictionary with new data and `.submit()`.
 
 print(paper.items)
 
-{'fig1': {
-  'X': [0, 100, 200, 300, 400],
-  'Y': [0.3, 0.5, 1.5, 3.5, 4.0],
-  'conditions': {'t_0(s)': 100, 't_final(s)': 1000}},
-'fig2': {
-  'plot_data': [[0, 200, 400], [0.4, 0.5, 0.9]],
-  'raw_data_pickled': b'\x80\x04\x95...'}}
-
-plt.plot(paper.items["fig1"]["X"], paper.items["fig1"]["Y"])
-
-plt.bar(paper.items["fig2"]["plot_data"][0], paper.items["fig2"]["plot_data"][1])
+{'Ext. Fig. 1-a': {'Vr': array([[ 0., -0.22517071,  0.11778803, ..., -1.59946409, -0.34829094,  1.0544314 ]]),
+                   'Vrm': array([0.0262406 , 0.02080717, 0.01293134, ..., 0.03627794, 0.04352064, 0.03727998]),
+                   'times': array([-0.1  , -0.099, -0.098, ...,  1.897,  1.898,  1.899])},
+                   'caption': 'Membrane voltage relative to baseline of a single model OSN in response to a 10-ms odour pulse. Black traces are individual trials; red trace is average over 20 trials. OSN spike threshold has been set high enough to prevent spiking to illustrate the subthreshold voltage time course.'}
+                   
+plt.plot(fig["times"], fig["Vr"], c="k");
 ```
 
 ## Upload Demo
@@ -47,11 +47,12 @@ You can organize your items freely, making sure the content is self-explanatory 
 import matplotlit.pyplot as plt
 import paperdata
 
-paper = paperdata.submit_data(DOI='342.2932')
+paper = paperdata.submit_data(DOI='123.1234')
 
 paper.items["Fig. 1"] = {}
 paper.items["Fig. 1"]["X"] = [0, 100, 200, 300, 400]
 paper.items["Fig. 1"]["Y"] = [0.3, 0.5, 1.5, 3.5, 4.0]
+paper.items["Fig. 1"]["plot_f"] = lambda X,Y: plt.plot(X,Y,c="k")
 
 paper.submit()
 ```
