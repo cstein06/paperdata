@@ -128,15 +128,15 @@ class Paper:
 def search_author(partial_name):
   '''Search if author names contains this string.'''
   try:
-    response = requests.get(server + f'search_author?name={name}')
+    response = requests.get(server + f'search_author?name={partial_name}')
   except Exception as e:
     print(e)
     return -2
   results = response.json()["result"]
   if len(results):
-    print(f"Found the following data records for author '{name}':")
+    print(f"Found the following data records for author '{partial_name}':")
   else:
-    print(f"Found no records for author '{name}''.")
+    print(f"Found no records for author '{partial_name}''.")
   return results
   
 def get_paper(DOI):
