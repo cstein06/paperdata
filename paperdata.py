@@ -125,7 +125,20 @@ class Paper:
       print(e)
       print("Submission failed.")
       
-      
+def search_author(partial_name):
+  '''Search if author names contains this string.'''
+  try:
+    response = requests.get(server + f'search_author?name={name}')
+  except Exception as e:
+    print(e)
+    return -2
+  results = response.json()["result"]
+  if len(results):
+    print(f"Found the following data records for author '{name}':")
+  else:
+    print(f"Found no records for author '{name}''.")
+  return results
+  
 def get_paper(DOI):
   try:
     response = requests.get(server + f'getpaper?DOI={DOI}')
@@ -180,5 +193,7 @@ def submit_data(DOI):
   return paper
 
 print("Welcome to PaperData!")
-print("Call `get_paper(DOI)` to retrieve a paper's data.")
-print("Call `submit_data(DOI)` to submit new paper data.")
+print("Call:")
+print("`search_author(partial_name)` to list author papers with a data record.")
+print("`get_paper(DOI)` to retrieve paper data.")
+print("`submit_data(DOI)` to submit new paper data.")
