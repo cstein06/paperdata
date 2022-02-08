@@ -31,24 +31,26 @@ Paper data record found! Find the data in `.items` and `.metadata`.
 >>> fig = paper.items['Ext. Fig. 1-a']
 >>> print(fig)
 
-PaperData item. Attributes: ['Vr', 'Vrm', 'times', 'caption', 'plot']
+PaperData item. Attributes: ['Vr', 'Vrm', 'times', 'caption', 'plot', '_source_plot']
 
 >>> plt.plot(fig.times, fig.Vr, c="k");     ### Easily access or plot the data
 
->>> fig.plot();     ### Or use plot function provided by the authors
+>>> fig.plot();     ### Or use plot functions provided by the authors
 ```
 
 ![Plot figure](https://github.com/cstein06/paperdata/blob/main/sina.png?raw=true)
 
 ## Upload Demo
 
-You can organize your items freely, making sure the content is self-explanatory with the aid of the paper. You can include a range of content types, including dictionaries, lists, strings, numpy arrays, pickled data, pyplot figures and functions.
+You can organize your items freely, making sure the content is self-explanatory with the aid of the paper. 
+
+You can include a range of content types, including nested dictionaries and lists, strings, numpy arrays, pickled data, pyplot figures and functions.
 
 ```python
 import matplotlit.pyplot as plt
 import paperdata
 
-paper = paperdata.submit_data(DOI='123.1234')
+paper = paperdata.get_paper(DOI='123.1234')
 
 figure = paper.new_item("Fig1")
 
