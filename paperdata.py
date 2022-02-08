@@ -32,7 +32,7 @@ class CustomEncoder(json.JSONEncoder):
               source = inspect.getsource(obj)
             except:
               source = globals()[f"_source_{obj.__name__}"]
-            return {"_TYPE_ITEM_FUNCTION": {"name":obj.__name__, "source":source}}
+            return {"_TYPE_PYTHON_FUNCTION": {"name":obj.__name__, "source":source}}
         elif isinstance(obj, matplotlib.figure.Figure):
             fig_pic = pickle.dumps(obj)
             encoded = base64.b64encode(fig_pic).decode("ascii")
