@@ -75,7 +75,7 @@ class Item:
     if initial_data is not None:
       for key in initial_data:
         if isinstance(initial_data[key], types.FunctionType):
-          setattr(self, key, plot_function.__get__(self))
+          setattr(self, key, initial_data[key].__get__(self))
         else:
           setattr(self, key, initial_data[key])
 
