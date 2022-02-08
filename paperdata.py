@@ -72,11 +72,12 @@ def custom_decoder(dct):
 
 class Item:
   def __init__(self, initial_data=None):
-    for key in initial_data:
-      if isinstance(initial_data[key], types.FunctionType):
-        setattr(self, key, plot_function.__get__(self))
-      else:
-        setattr(self, key, initial_data[key])
+    if initial_data is not None:
+      for key in initial_data:
+        if isinstance(initial_data[key], types.FunctionType):
+          setattr(self, key, plot_function.__get__(self))
+        else:
+          setattr(self, key, initial_data[key])
 
   def __str__(self):
     return f"PaperData item. Attributes: {list(self.__dict__.keys())}"
