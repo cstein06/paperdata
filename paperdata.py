@@ -1,4 +1,4 @@
-import sqlite3, json, numpy, pickle, bson, base64
+import sqlite3, json, numpy, pickle, bson, base64, dill
 
 import matplotlib.pyplot as plt
 import matplotlib.figure
@@ -8,8 +8,10 @@ import types, inspect, re, codecs
 
 import requests
   
-# server = 'http://127.0.0.1:8080/'
-server = 'https://lateral-attic-335719.nw.r.appspot.com/'
+print("*** Using local server. ***")
+server = 'http://127.0.0.1:8080/'
+
+# server = 'https://lateral-attic-335719.nw.r.appspot.com/'
 
 class CustomEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -19,10 +21,18 @@ class CustomEncoder(json.JSONEncoder):
             return float(obj)
         elif isinstance(obj, numpy.ndarray):
             return {"_TYPE_NDARRAY_LIST": obj.tolist()}
+        elif isinstance(obj, types.MethodType):
+            try: 
+              source = inspect.getsource(obj)
+            except:
+              source = globals()[f"_source_{obj.__name__}"]
+            return {"_TYPE_ITEM_METHOD": {"name":obj.__name__, "source":source}}
         elif isinstance(obj, types.FunctionType):
-            return {"_TYPE_PYTHON_FUNCTION": inspect.getsource(obj)}
-        elif isinstance(obj, Function):
-            return {"_TYPE_PYTHON_FUNCTION": obj.source}
+            try: 
+              source = inspect.getsource(obj)
+            except:
+              source = globals()[f"_source_{obj.__name__}"]
+            return {"_TYPE_ITEM_FUNCTION": {"name":obj.__name__, "source":source}}
         elif isinstance(obj, matplotlib.figure.Figure):
             fig_pic = pickle.dumps(obj)
             encoded = base64.b64encode(fig_pic).decode("ascii")
@@ -32,33 +42,23 @@ class CustomEncoder(json.JSONEncoder):
         else:
             return super(CustomEncoder, self).default(obj)
 
-class Function():
-  def __init__(self, source):
-    self.source = source
-    import re
-    if re.search("def", self.source):
-      self.name = re.search("def *([^ (]*)", self.source).group(1)
-    elif re.search("lambda", self.source):
-      self.name = re.search(" *([^ (]*)", self.source).group(1)
-    else:
-      print("Warning: Could not parse function name.")
-      self.name = ""
-    
-  def run(self, *args):
-    exec(self.source, globals())
-    # print(type(args))
-    return eval(self.name + f"(*args)")
-  
-  def __repr__(self):
-    return f"PaperData Function Object.\nCall `.run(*args)` to run the function.\nSource:\n{self.source}"
-
 def custom_decoder(dct):
   if '_TYPE_NDARRAY_LIST' in dct:
     return np.array(dct['_TYPE_NDARRAY_LIST'])
+  elif '_TYPE_ITEM_METHOD' in dct:
+    method = dct['_TYPE_ITEM_METHOD']
+    
+    globals()[f"_source_{method['name']}"] = method['source']
+    
+    exec(method["source"], globals())
+    return globals()[method["name"]]
   elif '_TYPE_PYTHON_FUNCTION' in dct:
-    source = dct['_TYPE_PYTHON_FUNCTION']
-    func = Function(source)
-    return func 
+    method = dct['_TYPE_PYTHON_FUNCTION']
+    
+    globals()[f"_source_{method['name']}"] = method['source']
+    
+    exec(method["source"], globals())
+    return globals()[method["name"]]
   elif '_TYPE_MATPLOTLIB_FIG' in dct:
     pickled = dct['_TYPE_MATPLOTLIB_FIG']
     decoded = base64.b64decode(pickled.encode("ascii"))
@@ -70,6 +70,18 @@ def custom_decoder(dct):
     return decoded 
   return dct
 
+class Item:
+  def __init__(self, initial_data=None):
+    for key in initial_data:
+      if isinstance(initial_data[key], types.FunctionType):
+        setattr(self, key, plot_function.__get__(self))
+      else:
+        setattr(self, key, initial_data[key])
+
+  def __str__(self):
+    return f"PaperData item. Attributes: {list(self.__dict__.keys())}"
+    # return "%s: %r" % (self.__class__, self.__dict__)
+    
 class Paper:
   
   def __init__(self):       
@@ -77,10 +89,17 @@ class Paper:
     self.email = None
     self.token = None
   
-  def __str__(self):
-      print_str = f"Paper {self.DOI}:\n"
-      return print_str + self.items.__str__()
-
+  def __repr__(self):
+      print_str = f"Paper {self.DOI}. Items: "
+      return print_str + str(list(self.items.keys()))
+      # return print_str + self.items.__str__()
+    
+  def new_item(self, item_name):
+    item = Item()
+    self.items[item_name] = item
+    print(f"Added '{item_name}' to .items")
+    return item
+    
   def submit(self):
 
     if self.name is None:
@@ -90,14 +109,21 @@ class Paper:
     if self.email is None:
       print("Please enter your academic email (university domains only):")
       self.email = input()
-    
+        
     contents = self.__dict__.copy()
-    temp_dict = json.dumps(contents["items"],cls=CustomEncoder).encode("utf-8")
-    contents["items"]  = json.loads(temp_dict)
-    # contents = json.dumps({"paper": self.__dict__}, cls=CustomEncoder)#.encode("utf-8")
+    
+    for item in contents["items"]:
+      contents["items"][item] = json.loads(json.dumps(contents["items"][item].__dict__,cls=CustomEncoder).encode("utf-8"))
+    
+#     temp_dict = json.dumps(contents["items"],cls=CustomEncoder).encode("utf-8")
+#     contents["items"]  = json.loads(temp_dict)
+    
+    # contents = json.dumps({"paper": self.__dict__}, cls=CustomEncoder)#.encode("utf-8")    
 
     try:   
       response = requests.post(server + "submitdata", json={"paper": contents})
+      # response = requests.post(server + "submitdata", data=contents)
+      
       response_json = json.loads(response.text)
       if response_json['status'] == 'FAILED':
         print("Submission failed.", response_json['result'])
@@ -160,6 +186,8 @@ def get_paper(DOI):
     paper.metadata = res["metadata"]
     paper.updated_by = res["updated_by"]    
     paper.items = res["items"]
+    for key,value in paper.items.items():
+      paper.items[key] = Item(initial_data=value)
     
   elif response_json["status"] == "NO_DOI": # DOI invalid 
     print(res)
@@ -186,9 +214,9 @@ def submit_data(DOI):
   elif paper.updated_by["update_count"] == 0:
     # create new paper 
     print("Creating new record.")
-    print("Update `.items` dictionary with new data and `.submit()`.")
+    print("Create new items with `.new_item()`, fill them with data and `.submit()`.")
   else: # paper found
-    print("Update `.items` dictionary with new data and `.submit()`.")
+    print("Create new items with `.new_item()`, fill them with data and `.submit()`.")
     
   return paper
 
