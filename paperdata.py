@@ -1,4 +1,4 @@
-import sqlite3, json, numpy, pickle, bson, base64, dill
+import sqlite3, json, numpy, pickle, bson, base64
 
 import matplotlib.pyplot as plt
 import matplotlib.figure
@@ -28,11 +28,12 @@ class CustomEncoder(json.JSONEncoder):
               source = globals()[f"_source_{obj.__name__}"]
             return {"_TYPE_ITEM_METHOD": {"name":obj.__name__, "source":source}}
         elif isinstance(obj, types.FunctionType):
-            try: 
-              source = inspect.getsource(obj)
-            except:
-              source = globals()[f"_source_{obj.__name__}"]
-            return {"_TYPE_PYTHON_FUNCTION": {"name":obj.__name__, "source":source}}
+          raise Exception('Please set functions as methods of an Item.')
+        #     try: 
+        #       source = inspect.getsource(obj)
+        #     except:
+        #       source = globals()[f"_source_{obj.__name__}"]
+        #     return {"_TYPE_PYTHON_FUNCTION": {"name":obj.__name__, "source":source}}
         elif isinstance(obj, matplotlib.figure.Figure):
             fig_pic = pickle.dumps(obj)
             encoded = base64.b64encode(fig_pic).decode("ascii")
@@ -41,7 +42,7 @@ class CustomEncoder(json.JSONEncoder):
             return {"_TYPE_PICKLE_BYTES": base64.b64encode(obj).decode("ascii")} 
         else:
             return super(CustomEncoder, self).default(obj)
-
+          
 def custom_decoder(dct):
   if '_TYPE_NDARRAY_LIST' in dct:
     return np.array(dct['_TYPE_NDARRAY_LIST'])
@@ -52,13 +53,13 @@ def custom_decoder(dct):
     
     exec(method["source"], globals())
     return globals()[method["name"]]
-  elif '_TYPE_PYTHON_FUNCTION' in dct:
-    method = dct['_TYPE_PYTHON_FUNCTION']
+#   elif '_TYPE_PYTHON_FUNCTION' in dct:
+#     method = dct['_TYPE_PYTHON_FUNCTION']
     
-    globals()[f"_source_{method['name']}"] = method['source']
+#     globals()[f"_source_{method['name']}"] = method['source']
     
-    exec(method["source"], globals())
-    return globals()[method["name"]]
+#     exec(method["source"], globals())
+#     return {"_FUNCTION_WITH_SOURCE": [globals()[method["name"]], method["source"]]}
   elif '_TYPE_MATPLOTLIB_FIG' in dct:
     pickled = dct['_TYPE_MATPLOTLIB_FIG']
     decoded = base64.b64decode(pickled.encode("ascii"))
@@ -76,6 +77,8 @@ class Item:
       for key in initial_data:
         if isinstance(initial_data[key], types.FunctionType):
           setattr(self, key, initial_data[key].__get__(self))
+          name = initial_data[key].__name__
+          setattr(self, "_source_"+key, globals()["_source_"+name])
         else:
           setattr(self, key, initial_data[key])
 
@@ -103,15 +106,14 @@ class Paper:
     
   def submit(self):
 
-    if self.name is None:
-      print("Please enter your name:")
-      self.name = input()
+    print("Please enter your name:")
+    self.name = input()
       
-    if self.email is None:
-      print("Please enter your academic email (university domains only):")
-      self.email = input()
+    print("Please enter your academic email (university domains only):")
+    self.email = input()
         
     contents = self.__dict__.copy()
+    contents["items"] = contents["items"].copy()
     
     for item in contents["items"]:
       contents["items"][item] = json.loads(json.dumps(contents["items"][item].__dict__,cls=CustomEncoder).encode("utf-8"))
@@ -180,6 +182,7 @@ def get_paper(DOI):
     # fill with db
     print(f"Paper: {res['DOI']}", res["title"], "\n")
     print(f"Paper data record found! Find the data in `.items` and `.metadata`.")
+    print("\nFor submitting additional data, change the data in `.items` or create new items with `.new_item()`, fill them with data and `.submit()`.")
     paper = Paper()
     paper._id = res["_id"]
     paper.DOI = res["DOI"]
@@ -195,7 +198,8 @@ def get_paper(DOI):
     return response_json["status"]
   else: # response_json["status"] == "NO_RECORD"
     print(f"Paper {DOI}: ", response_json["metadata"]["title"], "\n")
-    print(res)
+    # print(res)
+    print("No data records found. Find the metadata in `.metadata`.\n\nFor submitting data, create new items with `.new_item()`, fill them with data and `.submit()`.")
     paper = Paper()
     paper.DOI = DOI
     paper.title = response_json["metadata"]["title"]
@@ -204,21 +208,6 @@ def get_paper(DOI):
     paper.items = {}
     return paper
   
-  return paper
-
-def submit_data(DOI):
-  
-  paper = get_paper(DOI)
-  
-  if paper == "NO_DOI": # DOI invalid 
-    return
-  elif paper.updated_by["update_count"] == 0:
-    # create new paper 
-    print("Creating new record.")
-    print("Create new items with `.new_item()`, fill them with data and `.submit()`.")
-  else: # paper found
-    print("Create new items with `.new_item()`, fill them with data and `.submit()`.")
-    
   return paper
 
 print("Welcome to PaperData!")
