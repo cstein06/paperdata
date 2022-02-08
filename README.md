@@ -28,16 +28,17 @@ Paper: 10.1038/s41586-021-03514-2 Fast odour dynamics are encoded in the olfacto
 
 Paper data record found! Find the data in `.items` and `.metadata`.
 
->>> print(paper.items)
-
-{'Ext. Fig. 1-a': {'Vr': array([[ 0., -0.22517071,  0.11778803, ..., -1.59946409, -0.34829094,  1.0544314 ]]),
-                   'Vrm': array([0.0262406 , 0.02080717, 0.01293134, ..., 0.03627794, 0.04352064, 0.03727998]),
-                   'times': array([-0.1  , -0.099, -0.098, ...,  1.897,  1.898,  1.899])},
-                   'caption': 'Membrane voltage relative to baseline of a single model OSN in response to a 10-ms odour pulse. Black traces are individual trials; red trace is average over 20 trials. OSN spike threshold has been set high enough to prevent spiking to illustrate the subthreshold voltage time course.'}
-            
 >>> fig = paper.items['Ext. Fig. 1-a']
->>> plt.plot(fig["times"], fig["Vr"], c="k");
+>>> print(fig)
+
+PaperData item. Attributes: ['Vr', 'Vrm', 'times', 'caption', 'plot']
+
+>>> plt.plot(fig.times, fig.Vr, c="k");     ### Easily access or plot the data
+
+>>> fig.plot();     ### Or use plot function provided by the authors
 ```
+
+![Plot figure](https://github.com/cstein06/paperdata/blob/main/sina.png?raw=true)
 
 ## Upload Demo
 
@@ -49,10 +50,11 @@ import paperdata
 
 paper = paperdata.submit_data(DOI='123.1234')
 
-paper.items["Fig. 1"] = {}
-paper.items["Fig. 1"]["X"] = [0, 100, 200, 300, 400]
-paper.items["Fig. 1"]["Y"] = [0.3, 0.5, 1.5, 3.5, 4.0]
-paper.items["Fig. 1"]["plot_f"] = lambda X,Y: plt.plot(X,Y,c="k")
+figure = paper.new_item("Fig1")
+
+figure.X = [0, 100, 200, 300, 400]
+figure.Y = [0.3, 0.5, 1.5, 3.5, 4.0]
+figure.title = "Demo data"
 
 paper.submit()
 ```
